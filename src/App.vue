@@ -7,7 +7,7 @@ const loaded = ref(false);
 onMounted(() => {
   setTimeout(() => {
     loaded.value = true;
-  }, 100); 
+  }, 6000); 
 });
 </script>
 
