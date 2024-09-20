@@ -28,23 +28,30 @@ const captureImage = () => {
     const videoWidth = videoRef.value.videoWidth;
     const videoHeight = videoRef.value.videoHeight;
 
-    // Create canvas with video dimensions
+    // Use the frame's resolution for the canvas
+    const canvasWidth = 4688; // Frame width
+    const canvasHeight = 9059; // Frame height
+
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
     if (ctx) {
-      canvas.width = videoWidth;
-      canvas.height = videoHeight;
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
 
-      console.log("Canvas dimensions: ", videoWidth, videoHeight);
+      console.log("Canvas dimensions: ", canvasWidth, canvasHeight);
 
-      // Flip the context horizontally
+      // Flip the context horizontally for the video
       ctx.save();
-      ctx.translate(canvas.width, 0);
+      ctx.translate(canvasWidth, 0);
       ctx.scale(-1, 1);
 
-      // Draw the video frame on the canvas
-      ctx.drawImage(videoRef.value, 0, 0, videoWidth, videoHeight);
+      // Draw the video frame on the canvas, scaling up the video to match the canvas size
+      ctx.drawImage(
+        videoRef.value, 
+        0, 0, 
+        canvasWidth, canvasHeight
+      );
 
       // Restore the context to default state
       ctx.restore();
@@ -55,8 +62,8 @@ const captureImage = () => {
         console.log("Frame loaded!");
 
         // Draw the frame on top of the video
-        ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
-        
+        ctx.drawImage(frame, 0, 0, canvasWidth, canvasHeight);
+
         // Save the image with the highest quality
         capturedImage.value = canvas.toDataURL("image/png", 1.0);
         showModal.value = true;
