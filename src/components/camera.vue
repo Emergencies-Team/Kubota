@@ -25,9 +25,6 @@ const captureImage = () => {
   console.log("Capture started!");
 
   if (videoRef.value) {
-    const videoWidth = videoRef.value.videoWidth;
-    const videoHeight = videoRef.value.videoHeight;
-
     // Use the frame's resolution for the canvas
     const canvasWidth = 4688; // Frame width
     const canvasHeight = 9059; // Frame height
