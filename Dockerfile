@@ -8,4 +8,4 @@ RUN npm run build
 # production stage
 FROM nginx:stable-alpine AS production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
-COPY nginx-vue-app.conf /etc/nginx/conf.d/default.conf
+COPY ./config/nginx-vue-app.conf /etc/nginx/conf.d/default.conf
