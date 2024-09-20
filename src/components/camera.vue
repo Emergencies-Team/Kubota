@@ -28,16 +28,29 @@ const captureImage = () => {
     const videoWidth = videoRef.value.videoWidth;
     const videoHeight = videoRef.value.videoHeight;
 
-    // Calculate the desired canvas size with a 9:16 aspect ratio
-    let canvasWidth, canvasHeight;
-    if (videoWidth / videoHeight > 9 / 16) {
-      // Video is wider than 9:16 aspect ratio
-      canvasHeight = videoHeight;
-      canvasWidth = (canvasHeight * 9) / 16;
+    // Use the frame's resolution for the canvas
+    const canvasWidth = 4688; // Frame width
+    const canvasHeight = 9059; // Frame height
+
+    // Calculate the aspect ratio of the video and canvas
+    const videoAspectRatio = videoWidth / videoHeight;
+    const canvasAspectRatio = canvasWidth / canvasHeight;
+
+    // Variables to determine the dimensions to draw the video
+    let drawWidth, drawHeight, offsetX, offsetY;
+
+    if (videoAspectRatio > canvasAspectRatio) {
+      // Video is wider than canvas: scale based on height
+      drawHeight = canvasHeight;
+      drawWidth = canvasHeight * videoAspectRatio;
+      offsetX = (canvasWidth - drawWidth) / 2; // Center horizontally
+      offsetY = 0; // No vertical offset needed
     } else {
-      // Video is taller or equal to 9:16 aspect ratio
-      canvasWidth = videoWidth;
-      canvasHeight = (canvasWidth * 16) / 9;
+      // Video is taller than or equal to canvas: scale based on width
+      drawWidth = canvasWidth;
+      drawHeight = canvasWidth / videoAspectRatio;
+      offsetX = 0; // No horizontal offset needed
+      offsetY = (canvasHeight - drawHeight) / 2; // Center vertically
     }
 
     const canvas = document.createElement("canvas");
@@ -49,15 +62,17 @@ const captureImage = () => {
 
       console.log("Canvas dimensions: ", canvasWidth, canvasHeight);
 
-      // Flip the context horizontally
+      // Flip the context horizontally for the video
       ctx.save();
       ctx.translate(canvasWidth, 0);
       ctx.scale(-1, 1);
 
-      // Draw the video frame on the canvas
-      const offsetX = (canvasWidth - videoWidth) / 2;
-      const offsetY = (canvasHeight - videoHeight) / 2;
-      ctx.drawImage(videoRef.value, offsetX, offsetY, videoWidth, videoHeight);
+      // Draw the video frame on the canvas with correct aspect ratio
+      ctx.drawImage(
+        videoRef.value, 
+        offsetX, offsetY, 
+        drawWidth, drawHeight
+      );
 
       // Restore the context to default state
       ctx.restore();
@@ -66,9 +81,12 @@ const captureImage = () => {
       frame.src = frameSrc; // Ensure this path is correct
       frame.onload = () => {
         console.log("Frame loaded!");
+
         // Draw the frame on top of the video
         ctx.drawImage(frame, 0, 0, canvasWidth, canvasHeight);
-        capturedImage.value = canvas.toDataURL("image/png");
+
+        // Save the image with the highest quality
+        capturedImage.value = canvas.toDataURL("image/png", 1.0);
         showModal.value = true;
       };
 
