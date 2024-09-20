@@ -28,36 +28,23 @@ const captureImage = () => {
     const videoWidth = videoRef.value.videoWidth;
     const videoHeight = videoRef.value.videoHeight;
 
-    // Calculate the desired canvas size with a 9:16 aspect ratio
-    let canvasWidth, canvasHeight;
-    if (videoWidth / videoHeight > 9 / 16) {
-      // Video is wider than 9:16 aspect ratio
-      canvasHeight = videoHeight;
-      canvasWidth = (canvasHeight * 9) / 16;
-    } else {
-      // Video is taller or equal to 9:16 aspect ratio
-      canvasWidth = videoWidth;
-      canvasHeight = (canvasWidth * 16) / 9;
-    }
-
+    // Create canvas with video dimensions
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
     if (ctx) {
-      canvas.width = canvasWidth;
-      canvas.height = canvasHeight;
+      canvas.width = videoWidth;
+      canvas.height = videoHeight;
 
-      console.log("Canvas dimensions: ", canvasWidth, canvasHeight);
+      console.log("Canvas dimensions: ", videoWidth, videoHeight);
 
       // Flip the context horizontally
       ctx.save();
-      ctx.translate(canvasWidth, 0);
+      ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
 
       // Draw the video frame on the canvas
-      const offsetX = (canvasWidth - videoWidth) / 2;
-      const offsetY = (canvasHeight - videoHeight) / 2;
-      ctx.drawImage(videoRef.value, offsetX, offsetY, videoWidth, videoHeight);
+      ctx.drawImage(videoRef.value, 0, 0, videoWidth, videoHeight);
 
       // Restore the context to default state
       ctx.restore();
@@ -66,9 +53,12 @@ const captureImage = () => {
       frame.src = frameSrc; // Ensure this path is correct
       frame.onload = () => {
         console.log("Frame loaded!");
+
         // Draw the frame on top of the video
-        ctx.drawImage(frame, 0, 0, canvasWidth, canvasHeight);
-        capturedImage.value = canvas.toDataURL("image/png");
+        ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+        
+        // Save the image with the highest quality
+        capturedImage.value = canvas.toDataURL("image/png", 1.0);
         showModal.value = true;
       };
 
@@ -82,6 +72,7 @@ const captureImage = () => {
     console.error("Video element not found.");
   }
 };
+
 onMounted(() => {
   startCamera();
 });
@@ -89,7 +80,7 @@ onMounted(() => {
 
 <template>
   <section
-    class="w-full h-full bg-white-500 flex flex-col items-center justify-start overflow-hidden"
+    class="w-full h-full bg-white-500 flex flex-col items-center justify-start overflow-hidden ยขถ"
   >
     <section class="relative w-full h-[80vh]">
       <video
